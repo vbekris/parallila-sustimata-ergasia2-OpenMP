@@ -88,13 +88,13 @@ void parallel_mult(int *A, int *B, int *C, long n) {
 
 
 int main(int argc, char *argv[]) {
+    // --- 1. Λήψη ορισμάτων & Έλεγχοι ---
     if (argc != 3) {
         printf("Usage: %s <degree_n> <num_threads>\n", argv[0]);
         return 1;
     }
 
-    // 1. Λήψη ορισμάτων
-    long n = atol(argv[1]); // Χρήση long για μεγάλα n
+    long n = atol(argv[1]); 
     int threads = atoi(argv[2]);
 
     if (n <= 0 || threads <= 0) {
@@ -102,47 +102,77 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // Ρύθμιση νημάτων OpenMP
     omp_set_num_threads(threads);
-
     printf("--- Polynomial Multiplication (Degree N=%ld, Threads=%d) ---\n", n, threads);
 
-    // 2. Δυναμική Δέσμευση Μνήμης (Heap Allocation)
-    // Προσοχή: Το μέγεθος είναι n+1 για τα A, B και 2*n+1 για τα C
+    // --- 2. Δέσμευση Μνήμης ---
     int *A = (int*)malloc((n + 1) * sizeof(int));
     int *B = (int*)malloc((n + 1) * sizeof(int));
     int *C_serial = (int*)malloc((2 * n + 1) * sizeof(int));
     int *C_parallel = (int*)malloc((2 * n + 1) * sizeof(int));
 
-    // Έλεγχος αν απέτυχε η malloc (Κρίσιμο για μεγάλους πίνακες!)
     if (!A || !B || !C_serial || !C_parallel) {
         fprintf(stderr, "Error: Memory allocation failed!\n");
         return 1;
     }
 
-    // 3. Αρχικοποίηση (Initialization)
-    double start_time = omp_get_wtime();
+    // --- 3. Αρχικοποίηση (Μετράμε και αυτόν τον χρόνο όπως ζητήθηκε) ---
+    double start_time, end_time; // Μεταβλητές για μέτρηση χρόνου
     
-    // Αρχικοποίηση με 0 στα αποτελέσματα (σημαντικό για το +=)
-    // Χρησιμοποιούμε parallel for για γρήγορη αρχικοποίηση (First Touch Policy)
-    #pragma omp parallel for
+    start_time = omp_get_wtime();
+    
+    // First Touch Initialization (Σημαντικό για NUMA architectures)
+    #pragma omp parallel for schedule(static)
     for (long i = 0; i <= 2 * n; i++) {
         C_serial[i] = 0;
         C_parallel[i] = 0;
     }
 
     // Γεμίζουμε τα A και B
+    // Προσοχή: Η rand() δεν είναι thread-safe, την καλούμε σειριακά εδώ.
     init_poly(A, n);
     init_poly(B, n);
     
-    double init_time = omp_get_wtime() - start_time;
-    printf("Initialization Time: %f seconds\n", init_time);
+    end_time = omp_get_wtime();
+    printf("Initialization Time: %.6f seconds\n", end_time - start_time);
 
-    // --- ΕΔΩ ΘΑ ΜΠΟΥΝ ΟΙ ΚΛΗΣΕΙΣ ΣΤΟΥΣ ΑΛΓΟΡΙΘΜΟΥΣ (ΦΑΣΗ 4 - Μέρος 3) ---
+
+    // --- 4. Εκτέλεση & Χρονομέτρηση ΣΕΙΡΙΑΚΟΥ ---
+    printf("Running Serial Algorithm...\n");
+    start_time = omp_get_wtime();
+    
     serial_mult(A, B, C_serial, n);
+    
+    end_time = omp_get_wtime();
+    double serial_duration = end_time - start_time;
+    printf("Serial Time:       %.6f seconds\n", serial_duration);
+
+
+    // --- 5. Εκτέλεση & Χρονομέτρηση ΠΑΡΑΛΛΗΛΟΥ ---
+    printf("Running Parallel Algorithm...\n");
+    start_time = omp_get_wtime();
+    
     parallel_mult(A, B, C_parallel, n);
     
-    // 4. Αποδέσμευση Μνήμης (Garbage Collection δεν υπάρχει στη C!)
+    end_time = omp_get_wtime();
+    double parallel_duration = end_time - start_time;
+    printf("Parallel Time:     %.6f seconds\n", parallel_duration);
+
+
+    // --- 6. Επαλήθευση & Speedup ---
+    printf("Verifying results... ");
+    if (check_result(C_serial, C_parallel, n)) {
+        printf("SUCCESS! Results match.\n");
+        
+        // Υπολογισμός Speedup (S = T_serial / T_parallel)
+        double speedup = serial_duration / parallel_duration;
+        printf("Speedup:           %.2fx\n", speedup);
+        
+    } else {
+        printf("FAILURE! Results do not match.\n");
+    }
+
+    // --- 7. Αποδέσμευση ---
     free(A);
     free(B);
     free(C_serial);

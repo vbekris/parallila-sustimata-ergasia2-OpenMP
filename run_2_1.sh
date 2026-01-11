@@ -21,7 +21,7 @@ for n in "${SIZES[@]}"; do
     
     for t in "${THREADS[@]}"; do
         echo "-> Running with $t threads..."
-        ./poly_mult $n $t
+        ./ex2_1 $n $t
         echo ""
     done
 done

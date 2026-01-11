@@ -4,7 +4,7 @@ CC = gcc
 # -fopenmp: Ενεργοποίηση OpenMP
 # -Wall: Εμφάνιση όλων των warnings (καλή πρακτική)
 CFLAGS = -O3 -fopenmp -Wall
-TARGET = poly_mult
+TARGET = ex2_1
 
 all: $(TARGET)
 
