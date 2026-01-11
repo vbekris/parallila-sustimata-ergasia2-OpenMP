@@ -32,7 +32,7 @@ Educational C project implementing parallel polynomial multiplication using Open
 - Multiplication of degree-n inputs produces degree-2n output (2n+1 elements)
 - **Critical**: Coefficients must be non-zero (1-10), enforced via `(rand() % 10) + 1`
 
-### Code Structure in [ex2_1.c](../ex2_1.c)
+### Code Structure in [ex2_1.c](../ex2_1/ex2_1.c)
 - `print_poly()`: Debug helper, auto-skips arrays > 20 elements
 - `init_poly()`: Initializes with random non-zero coefficients
 - `check_result()`: Validates parallel vs serial results, returns 1 (pass) / 0 (fail)
