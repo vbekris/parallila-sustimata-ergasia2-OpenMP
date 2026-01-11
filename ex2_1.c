@@ -67,7 +67,7 @@ void parallel_mult(int *A, int *B, int *C, long n) {
     // schedule(dynamic): Κρίσιμο για την τριγωνική κατανομή φόρτου.
     // default(none): Μας αναγκάζει να σκεφτούμε το scoping για ΚΑΘΕ μεταβλητή.
     
-    #pragma omp parallel for schedule(dynamic, 64) \
+    #pragma omp parallel for schedule(dynamic) \
         default(none) \
         shared(A, B, C, n) 
     for (long k = 0; k <= 2 * n; k++) {
@@ -139,8 +139,8 @@ int main(int argc, char *argv[]) {
     printf("Initialization Time: %f seconds\n", init_time);
 
     // --- ΕΔΩ ΘΑ ΜΠΟΥΝ ΟΙ ΚΛΗΣΕΙΣ ΣΤΟΥΣ ΑΛΓΟΡΙΘΜΟΥΣ (ΦΑΣΗ 4 - Μέρος 3) ---
-    // serial_mult(A, B, C_serial, n);
-    // parallel_mult(A, B, C_parallel, n);
+    serial_mult(A, B, C_serial, n);
+    parallel_mult(A, B, C_parallel, n);
     
     // 4. Αποδέσμευση Μνήμης (Garbage Collection δεν υπάρχει στη C!)
     free(A);

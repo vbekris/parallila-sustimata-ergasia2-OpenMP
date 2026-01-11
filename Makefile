@@ -8,8 +8,8 @@ TARGET = poly_mult
 
 all: $(TARGET)
 
-$(TARGET): poly_mult.c
-	$(CC) $(CFLAGS) -o $(TARGET) poly_mult.c
+$(TARGET): ex2_1.c
+	$(CC) $(CFLAGS) -o $(TARGET) ex2_1.c
 
 clean:
 	rm -f $(TARGET)

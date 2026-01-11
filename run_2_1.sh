@@ -1,15 +1,27 @@
-CC = gcc
-# Flags:
-# -O3: Μέγιστη βελτιστοποίηση (απαραίτητο για να δούμε πραγματικό speedup)
-# -fopenmp: Ενεργοποίηση OpenMP
-# -Wall: Εμφάνιση όλων των warnings (καλή πρακτική)
-CFLAGS = -O3 -fopenmp -Wall
-TARGET = poly_mult
+#!/bin/bash
 
-all: $(TARGET)
+# Compile first
+make clean
+make
 
-$(TARGET): poly_mult.c
-	$(CC) $(CFLAGS) -o $(TARGET) poly_mult.c
+echo "=========================================="
+echo "Running Experiments for Polynomial Multiplication"
+echo "=========================================="
 
-clean:
-	rm -f $(TARGET)
+# Ορίζουμε τα μεγέθη προβλήματος (Degree N)
+SIZES=(10000 50000 100000) 
+
+# Ορίζουμε τα νήματα που θα δοκιμάσουμε
+THREADS=(1 2 4 8 16)
+
+for n in "${SIZES[@]}"; do
+    echo "------------------------------------------"
+    echo "Testing Degree N = $n"
+    echo "------------------------------------------"
+    
+    for t in "${THREADS[@]}"; do
+        echo "-> Running with $t threads..."
+        ./poly_mult $n $t
+        echo ""
+    done
+done
