@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": false,
+      "externalConsole": false,
+      "cwd": "/home/users/sdi2300131/5o_eksamino/parallila_sustimata/ergasia_2/parallila-sustimata-ergasia2-OpenMP",
+      "program": "/home/users/sdi2300131/5o_eksamino/parallila_sustimata/ergasia_2/parallila-sustimata-ergasia2-OpenMP/build/Debug/outDebug",
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
+}
