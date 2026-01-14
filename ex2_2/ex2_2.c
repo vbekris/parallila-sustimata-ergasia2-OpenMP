@@ -359,19 +359,38 @@ int main(int argc, char *argv[]) {
         printf("Skipping Dense Mult due to large N.\n");
     }
 
-    // 7. Verification
-    // (Μπορούμε να συγκρίνουμε και το y από τον serial SpMV για απόλυτη σιγουριά)
+    // --- 7. Verification (Επαλήθευση) ---
+    printf("Verifying results (Dense vs CSR Parallel)... ");
+    int errors = 0;
+    for (int i = 0; i < n; i++) {
+        // Συγκρίνουμε το αποτέλεσμα του Dense (y_dense) με του Parallel CSR (y_csr)
+        if (y_dense[i] != y_csr[i]) {
+            errors++;
+            if (errors < 5) { // Τυπώνουμε μόνο τα 5 πρώτα λάθη
+                printf("\nMismatch at index %d: Dense=%d, CSR=%d", i, y_dense[i], y_csr[i]);
+            }
+        }
+    }
     
-    // Cleanup
+    if (errors == 0) {
+        printf("SUCCESS! Results match.\n");
+    } else {
+        printf("\nFAILURE! Found %d errors.\n", errors);
+    }
+
+    // --- 8. Cleanup (Αποδέσμευση Μνήμης) ---
+    
+    // 1. Αποδέσμευση των δομών CSR (Serial & Parallel)
+    // Χρησιμοποιούμε τη συνάρτηση free_csr που φτιάξαμε
     free_csr(&csr_serial);
     free_csr(&csr_parallel);
 
-    // Clean up
-    free(A_dense);
+    // 2. Αποδέσμευση των απλών πινάκων (Dense)
+    // ΠΡΟΣΟΧΗ: Εδώ ήταν το λάθος. Τα ονόματα πρέπει να είναι ίδια με τη δήλωση (malloc).
+    free(A_dense); 
     free(x);
     free(y_dense);
     free(y_csr);
-    free_csr(&csr_mat); // Όταν τη φτιάξουμε
 
     return 0;
 }
